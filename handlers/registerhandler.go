@@ -5,16 +5,16 @@ import (
 	"html/template"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func RegiterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method	!= http.MethodGet{
 		//err
 		return
 	}
-	if r.URL.Path != "/login"{
+	if r.URL.Path != "/register"{
 		//err
 		return
 	}
-	tmpl, err := template.ParseFiles("template/login.html")
+	tmpl, err := template.ParseFiles("template/register.html")
 	if err != nil{
 		//err
 		return

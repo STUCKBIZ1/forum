@@ -30,10 +30,12 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
+	http.HandleFunc("/register", handlers.RegiterHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
+	http.HandleFunc("POST /post/", handlers.Commenthandler)
 
-	fmt.Println("Server listen on http://localhost:8989/")
-	err = http.ListenAndServe(":8989", nil)
+	fmt.Println("Server listen on http://localhost:8888/")
+	err = http.ListenAndServe(":8888", nil)
 	if err != nil {
 		fmt.Println("Server error:", err)
 	}
