@@ -32,8 +32,7 @@ func main() {
 	http.HandleFunc("/", handlers.HomeHandler)
 	http.HandleFunc("/register", handlers.RegiterHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
-	http.HandleFunc("POST /post/", handlers.Commenthandler)
-
+	http.HandleFunc("/post/", handlers.CLDPhandlers)
 	fmt.Println("Server listen on http://localhost:8888/")
 	err = http.ListenAndServe(":8888", nil)
 	if err != nil {
