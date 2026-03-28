@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum Home</title>
+</head>
+<body>
+    <h1>Welcome to Home Page</h1>
+    {{range .}}
+        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <h2>Author: {{.Author}}</h2>
+            <p>{{.Content}}</p>
+            <p>Likes: {{.Like}}, Dislikes: {{.Dislike}}</p>
+
+            <h3>Comments:</h3>
+            {{range .Comments}}
+                <div style="border:1px dashed #aaa; padding:5px; margin:5px;">
+                    <p>{{.Author}}: {{.Content}}</p>
+                    <p>Likes: {{.Like}}, Dislikes: {{.Dislike}}</p>
+                </div>
+            {{else}}
+                <p>No comments yet.</p>
+            {{end}}
+        </div>
+    {{else}}
+        <p>No posts yet.</p>
+    {{end}}
+</body>
+</html>
