@@ -3,27 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <title>Forum Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>Welcome to Home Page</h1>
-    {{range .}}
-        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-            <h2>Author: {{.Author}}</h2>
-            <p>{{.Content}}</p>
-            <p>Likes: {{.Like}}, Dislikes: {{.Dislike}}</p>
 
-            <h3>Comments:</h3>
+<header>
+    <h1>Welcome to <span>Forum</span></h1>
+    <p class="subtitle">Community Discussions</p>
+</header>
+
+<main>
+    {{range .}}
+    <article class="post-card">
+
+        <div class="post-header">
+            <div class="avatar">{{slice .Author 0 1}}</div>
+            <div class="post-meta">
+                <span class="post-author">{{.Author}}</span>
+                <span class="post-label">Author</span>
+            </div>
+        </div>
+
+        <div class="post-body">
+            <p class="post-content">{{.Content}}</p>
+        </div>
+
+        <div class="reactions">
+            <span class="reaction-btn like">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 7.59 6.59C7.22 6.95 7 7.45 7 8v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                {{.Like}}
+            </span>
+            <span class="reaction-btn dislike">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 3h-4v12h4V3zM2 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l5.58-5.59c.37-.36.59-.86.59-1.41V6c0-1.1-.9-2-2-2H6c-.83 0-1.54.5-1.84 1.22L1.14 12.27C1.05 12.5 1 12.74 1 13v2z"/></svg>
+                {{.Dislike}}
+            </span>
+        </div>
+
+        <div class="comments-section">
+            <p class="comments-title">Comments</p>
+
             {{range .Comments}}
-                <div style="border:1px dashed #aaa; padding:5px; margin:5px;">
-                    <p>{{.Author}}: {{.Content}}</p>
-                    <p>Likes: {{.Like}}, Dislikes: {{.Dislike}}</p>
+            <div class="comment-item">
+                <div class="comment-top">
+                    <div class="comment-avatar">{{slice .Author 0 1}}</div>
+                    <span class="comment-author">{{.Author}}</span>
                 </div>
+                <p class="comment-content">{{.Content}}</p>
+                <div class="comment-reactions">
+                    <span class="reaction-btn like">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 7.59 6.59C7.22 6.95 7 7.45 7 8v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                        {{.Like}}
+                    </span>
+                    <span class="reaction-btn dislike">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 3h-4v12h4V3zM2 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l5.58-5.59c.37-.36.59-.86.59-1.41V6c0-1.1-.9-2-2-2H6c-.83 0-1.54.5-1.84 1.22L1.14 12.27C1.05 12.5 1 12.74 1 13v2z"/></svg>
+                        {{.Dislike}}
+                    </span>
+                </div>
+            </div>
             {{else}}
-                <p>No comments yet.</p>
+            <p class="no-comments">No comments yet.</p>
             {{end}}
         </div>
+
+    </article>
     {{else}}
-        <p>No posts yet.</p>
+    <div class="empty-state">No posts yet.</div>
     {{end}}
+</main>
+
 </body>
 </html>

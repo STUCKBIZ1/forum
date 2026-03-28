@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	"net/http"
 	"html/template"
+	"net/http"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
