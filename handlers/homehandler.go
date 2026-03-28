@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 )
@@ -25,7 +24,5 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		// error
 		return
 	}
-	fmt.Println(posts)
-
 	temp.Execute(w, posts)
 }

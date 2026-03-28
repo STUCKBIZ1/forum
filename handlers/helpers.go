@@ -28,5 +28,12 @@ func GetPosts(db *sql.DB) (any, error) {
 		}
 		posts = append(posts, p)
 	}
+	posts = append(posts, Post{ID: 1, Author: "Ahmed", Content: "dfs World!", Like: 10, Dislike: 2})
+	posts = append(posts, Post{ID: 1, Author: "ali", Content: "Helererereelo Wodfdfrld!", Like: 11, Dislike: 2})
+	posts = append(posts, Post{ID: 1, Author: "Ahed", Content: "Hello World!", Like: 10, Dislike: 2})
+	posts = append(posts, Post{ID: 1, Author: "moh", Content: "Hellererero Wdfdorld!", Like: 10, Dislike: 2})
+	posts = append(posts, Post{ID: 1, Author: "ueu", Content: "Hello World!", Like: 12340, Dislike: 2})
+	posts = append(posts, Post{ID: 1, Author: "diier", Content: "Hellodfdfeferer World!", Like: 11, Dislike: 2})
+
 	return posts, nil
 }
