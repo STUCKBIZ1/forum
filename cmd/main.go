@@ -30,7 +30,8 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
-	http.HandleFunc("/register", handlers.RegiterHandler)
+	http.HandleFunc("GET /register", handlers.RegiterHandler)
+	http.HandleFunc("POST /creat-account", handlers.CreateUser)
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/post/", handlers.CLDPhandlers)
 	fmt.Println("Server listen on http://localhost:8888/")
