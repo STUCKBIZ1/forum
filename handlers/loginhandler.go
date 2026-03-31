@@ -6,6 +6,10 @@ import (
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost && r.URL.Path == "/login"{
+		SignIn(w, r)
+		return
+	}
 	if r.Method	!= http.MethodGet{
 		//err
 		return

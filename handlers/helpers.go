@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"database/sql"
+	"fmt"
+	"net/http"
 )
 
 func GetPosts(db *sql.DB) (any, error) {
-	rows, err := db.Query("SELECT id, content, author, likes, dislikes FROM posts")
+	rows, err := db.QueryRow("SELECT id, content, author, likes, dislikes FROM posts")
 	if err != nil {
 		// err
 		return nil, err
@@ -36,4 +39,33 @@ func GetPosts(db *sql.DB) (any, error) {
 	posts = append(posts, Post{ID: 1, Author: "diier", Content: "Hellodfdfeferer World!", Like: 11, Dislike: 2})
 
 	return posts, nil
+}
+
+func SignIn(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	var dbpassowrd 
+	row := DB.QueryRow("SELECT password FROME user WHERE username = ?", username)
+	err := row.Scan(&dbpassowrd)
+
+	//  cookie := &http.Cookie{
+	// 	Name : "session_token",
+	// 	Value : 
+		
+	//  }
+	//  http.SetCookie(w, cookie)
+}
+
+func CreateUser(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	query := `INSERT INTO user(username, email, password) VALUES (?, ?, ?)`
+	_, err := DB.Exec(query, username, email, password)
+	if err != nil {
+		// err
+		fmt.Fprintln(w, err)
+		return
+	}
+	http.Redirect(w, r, "/login", 302)
 }

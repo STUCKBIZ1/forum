@@ -28,8 +28,50 @@ func CreateTables(db *sql.DB) {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 	);`
+	userTable := `
+	CREATE TABLE IF NOT EXISTS user (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username TEXT UNIQUE NOT NULL,
+		email TEXT UNIQUE NOT NULL,
+		password TEXT NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+	`
+	session_user := `
+	CREATE TABLE IF NOT EXISTS session(
+	session_token INTEGER PRIMARY KEY
+	)
+	`
+	// likeTable := `
+	// CREATE TABLE IF NOT EXISTS like(
+	// 	post_id INTEGER PRIMARY KEY,
+	// 	user_id INTEGER PRIMARY KEY,
+	// )
+	// `
+	// dislikeTable := `
+	// 	CREATE TABLE IF NOT EXISTS like(
+	// 	post_id INTEGER PRIMARY KEY,
+	// 	user_id INTEGER PRIMARY KEY,
+	// (
+	// `
+	_, err := db.Exec(session_user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(userTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// _, err = db.Exec(likeTable)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// _, err = db.Exec(dislikeTable)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	_, err := db.Exec(postTable)
+	_, err = db.Exec(postTable)
 	if err != nil {
 		log.Fatal(err)
 	}
