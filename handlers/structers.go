@@ -15,6 +15,7 @@ type Post struct {
 type Posts struct{
     AllPosts []Post
     LoggedIn bool
+    Username string
 }
 type Comment struct {
     ID      int

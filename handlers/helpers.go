@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -51,7 +53,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", 400)
 		return
 	}
-
 	err = bcrypt.CompareHashAndPassword([]byte(dbpassowrd), []byte(password))
 	if err != nil {
 		http.Error(w, "Wrong password", 400)
@@ -59,6 +60,14 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := uuid.New().String()
+	query := `INSERT INTO session_user (session_token, username) VALUES (?, ?)`
+
+	_, err = DB.Exec(query, token, username)
+	if err != nil {
+		fmt.Println("ERROR", err)
+		http.Error(w, "ERROR", 422)
+		return
+	}
 
 	cookie := &http.Cookie{
 		Name:     "session_token",
@@ -66,7 +75,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	}
-
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -77,7 +85,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	dbpassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		//err
+		// err
 		return
 	}
 	query := `INSERT INTO user(username, email, password) VALUES (?, ?, ?)`
@@ -89,17 +97,43 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/login", 302)
 }
-func SesIsFexist(r *http.Request) bool {
-	cookie, err := r.Cookie("session_token")
+
+func SesIsExist(r *http.Request) bool {
+	session := GetToken(r)
+	fmt.Println(session)
+	var s string
+	err := DB.QueryRow("SELECT session_token FROM session_user WHERE session_token = ?", session).Scan(&s)
 	if err != nil {
-		//err
-		return false
-	}
-	session := cookie.Value
-	var id int
-	err = DB.QueryRow("SELECT id FROM session WHERE session_token = ?", session).Scan(&id)
-	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 	return true
+}
+
+func GetToken(r *http.Request) string {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		// err
+		return ""
+	}
+	token := cookie.Value
+	return token
+}
+
+func GetUserName(r *http.Request) string {
+	token := GetToken(r)
+	var u string
+	err := DB.QueryRow("SELECT  username FROM session_user WHERE session_token = ?", token).Scan(&u)
+	if err != nil {
+		// err
+		return ""
+	}
+	return u
+}
+func DeleteSession(session string){
+	_, err := DB.Exec("DELETE FROM session_user WHERE session_token = ?", session)
+	if err != nil{
+		log.Fatal("Failed to delete row:", err)
+	}
+	return
 }

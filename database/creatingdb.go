@@ -38,12 +38,13 @@ func CreateTables(db *sql.DB) {
 	);
 	`
 	session_user := `
-	CREATE TABLE IF NOT EXISTS session(
+	CREATE TABLE IF NOT EXISTS session_user(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	session_token INTEGER PRIMARY KEY
+	session_token TEXT UNIQUE NOT NULL,
+	username TEXT UNIQUE NOT NULL
 	)
 	`
-	// likeTable := `
+	// likeTable := `	
 	// CREATE TABLE IF NOT EXISTS like(
 	// 	post_id INTEGER PRIMARY KEY,
 	// 	user_id INTEGER PRIMARY KEY,
