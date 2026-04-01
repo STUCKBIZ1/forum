@@ -12,7 +12,10 @@ type Post struct {
     Like     int
     Dislike  int
 }
-
+type Posts struct{
+    AllPosts []Post
+    LoggedIn bool
+}
 type Comment struct {
     ID      int
     PostID  int

@@ -14,8 +14,13 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		// error
 		return
 	}
-	posts, errr := GetPosts(DB)
-	if errr != nil {
+	checkse := SesIsFexist(r)
+	posts, err := GetPosts()
+	p := Posts{
+		AllPosts: posts,
+		LoggedIn: checkse,
+	}
+	if err != nil {
 		// err
 		return
 	}
@@ -24,5 +29,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		// error
 		return
 	}
-	temp.Execute(w, posts)
+
+	temp.Execute(w, p)
 }

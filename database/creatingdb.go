@@ -39,6 +39,7 @@ func CreateTables(db *sql.DB) {
 	`
 	session_user := `
 	CREATE TABLE IF NOT EXISTS session(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	session_token INTEGER PRIMARY KEY
 	)
 	`

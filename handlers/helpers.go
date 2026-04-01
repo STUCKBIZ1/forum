@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"golang.org/x/crypto/bcrypt"
-	"database/sql"
 	"fmt"
 	"net/http"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func GetPosts(db *sql.DB) (any, error) {
-	rows, err := db.QueryRow("SELECT id, content, author, likes, dislikes FROM posts")
+func GetPosts() ([]Post, error) {
+	rows, err := DB.Query("SELECT id, content, author, likes, dislikes FROM posts")
 	if err != nil {
 		// err
 		return nil, err
@@ -18,7 +18,7 @@ func GetPosts(db *sql.DB) (any, error) {
 	for rows.Next() {
 		var p Post
 		rows.Scan(&p.ID, &p.Content, &p.Author, &p.Like, &p.Dislike)
-		commentrows, err := db.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_it = ?", p.ID)
+		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_it = ?", p.ID)
 		if err != nil {
 			// err
 			return nil, err
@@ -42,30 +42,64 @@ func GetPosts(db *sql.DB) (any, error) {
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
-	username := r.FormValue("username")
 	password := r.FormValue("password")
-	var dbpassowrd 
-	row := DB.QueryRow("SELECT password FROME user WHERE username = ?", username)
-	err := row.Scan(&dbpassowrd)
+	username := r.FormValue("username")
 
-	//  cookie := &http.Cookie{
-	// 	Name : "session_token",
-	// 	Value : 
-		
-	//  }
-	//  http.SetCookie(w, cookie)
+	var dbpassowrd string
+	err := DB.QueryRow("SELECT password FROM user WHERE username = ?", username).Scan(&dbpassowrd)
+	if err != nil {
+		http.Error(w, "User not found", 400)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(dbpassowrd), []byte(password))
+	if err != nil {
+		http.Error(w, "Wrong password", 400)
+		return
+	}
+
+	token := uuid.New().String()
+
+	cookie := &http.Cookie{
+		Name:     "session_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+	}
+
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+	dbpassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		//err
+		return
+	}
 	query := `INSERT INTO user(username, email, password) VALUES (?, ?, ?)`
-	_, err := DB.Exec(query, username, email, password)
+	_, err = DB.Exec(query, username, email, string(dbpassword))
 	if err != nil {
 		// err
 		fmt.Fprintln(w, err)
 		return
 	}
 	http.Redirect(w, r, "/login", 302)
+}
+func SesIsFexist(r *http.Request) bool {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		//err
+		return false
+	}
+	session := cookie.Value
+	var id int
+	err = DB.QueryRow("SELECT id FROM session WHERE session_token = ?", session).Scan(&id)
+	if err != nil {
+		return false
+	}
+	return true
 }
