@@ -7,20 +7,21 @@ import (
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("hello ddd")
+
 	if r.Method != http.MethodGet {
-		// error
+		http.Error(w, "bad request this method is not valid", 400)
 		return
 	}
 	if r.URL.Path != "/" {
-		// error
+		http.Error(w, "not found", 404)
 		return
 	}
-	var username string 
+	var username string
 	checkse := SesIsExist(r)
-	if checkse{
-		username = GetUserName(r)
+	if checkse {
+		username, _, _ = GetUserName(r)
 	}
-	fmt.Println(checkse)
 	posts, err := GetPosts()
 	p := Posts{
 		AllPosts: posts,
@@ -28,7 +29,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		Username: username,
 	}
 	if err != nil {
-		// err
+		fmt.Fprintln(w, err)
 		return
 	}
 	temp, err := template.ParseFiles("template/home.html")

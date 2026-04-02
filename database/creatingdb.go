@@ -10,6 +10,7 @@ func CreateTables(db *sql.DB) {
 	postTable := `
 	CREATE TABLE IF NOT EXISTS posts (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER,
 		content TEXT NOT NULL,
 		author TEXT NOT NULL,
 		likes INTEGER DEFAULT 0,
@@ -25,8 +26,7 @@ func CreateTables(db *sql.DB) {
 		content TEXT NOT NULL,
 		likes INTEGER DEFAULT 0,
 		dislikes INTEGER DEFAULT 0,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`
 	userTable := `
 	CREATE TABLE IF NOT EXISTS user (
@@ -40,6 +40,7 @@ func CreateTables(db *sql.DB) {
 	session_user := `
 	CREATE TABLE IF NOT EXISTS session_user(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	user_id INTEGER,
 	session_token TEXT UNIQUE NOT NULL,
 	username TEXT UNIQUE NOT NULL
 	)

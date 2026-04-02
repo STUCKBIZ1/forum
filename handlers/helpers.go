@@ -10,9 +10,8 @@ import (
 )
 
 func GetPosts() ([]Post, error) {
-	rows, err := DB.Query("SELECT id, content, author, likes, dislikes FROM posts")
+	rows, err := DB.Query("SELECT id, content, author, likes, dislikes FROM posts ORDER BY created_at DESC")
 	if err != nil {
-		// err
 		return nil, err
 	}
 	defer rows.Close()
@@ -20,9 +19,8 @@ func GetPosts() ([]Post, error) {
 	for rows.Next() {
 		var p Post
 		rows.Scan(&p.ID, &p.Content, &p.Author, &p.Like, &p.Dislike)
-		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_it = ?", p.ID)
+		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_id = ?", p.ID)
 		if err != nil {
-			// err
 			return nil, err
 		}
 		defer commentrows.Close()
@@ -33,13 +31,6 @@ func GetPosts() ([]Post, error) {
 		}
 		posts = append(posts, p)
 	}
-	posts = append(posts, Post{ID: 1, Author: "Ahmed", Content: "dfs World!", Like: 10, Dislike: 2})
-	posts = append(posts, Post{ID: 1, Author: "ali", Content: "Helererereelo Wodfdfrld!", Like: 11, Dislike: 2})
-	posts = append(posts, Post{ID: 1, Author: "Ahed", Content: "Hello World!", Like: 10, Dislike: 2})
-	posts = append(posts, Post{ID: 1, Author: "moh", Content: "Hellererero Wdfdorld!", Like: 10, Dislike: 2})
-	posts = append(posts, Post{ID: 1, Author: "ueu", Content: "Hello World!", Like: 12340, Dislike: 2})
-	posts = append(posts, Post{ID: 1, Author: "diier", Content: "Hellodfdfeferer World!", Like: 11, Dislike: 2})
-
 	return posts, nil
 }
 
@@ -58,11 +49,15 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong password", 400)
 		return
 	}
-
+	user_id, err := GetUserId(r, username)
+	if err != nil {
+		log.Fatal("ERROR", err)
+		return
+	}
 	token := uuid.New().String()
-	query := `INSERT INTO session_user (session_token, username) VALUES (?, ?)`
+	query := `INSERT INTO session_user (user_id, session_token, username) VALUES (?, ?, ?)`
 
-	_, err = DB.Exec(query, token, username)
+	_, err = DB.Exec(query, user_id, token, username)
 	if err != nil {
 		fmt.Println("ERROR", err)
 		http.Error(w, "ERROR", 422)
@@ -104,7 +99,6 @@ func SesIsExist(r *http.Request) bool {
 	var s string
 	err := DB.QueryRow("SELECT session_token FROM session_user WHERE session_token = ?", session).Scan(&s)
 	if err != nil {
-		fmt.Println(err)
 		return false
 	}
 	return true
@@ -120,20 +114,55 @@ func GetToken(r *http.Request) string {
 	return token
 }
 
-func GetUserName(r *http.Request) string {
+func GetUserName(r *http.Request) (string, int, error) {
 	token := GetToken(r)
 	var u string
-	err := DB.QueryRow("SELECT  username FROM session_user WHERE session_token = ?", token).Scan(&u)
+	var user_id int
+	err := DB.QueryRow("SELECT username, user_id FROM session_user WHERE session_token = ?", token).Scan(&u, &user_id)
 	if err != nil {
 		// err
-		return ""
+		return "", 0, err
 	}
-	return u
+	return u, user_id, nil
 }
-func DeleteSession(session string){
+
+func DeleteSession(session string) {
 	_, err := DB.Exec("DELETE FROM session_user WHERE session_token = ?", session)
-	if err != nil{
+	if err != nil {
 		log.Fatal("Failed to delete row:", err)
 	}
-	return
+}
+
+func IsTrue(s string) bool {
+	switch s {
+	case "comment", "like", "dislike":
+		return true
+	}
+	return false
+}
+
+func InsertingData(s CreatCPLD, category string) error {
+	var err error
+	switch category {
+	case "post":
+		_, err = DB.Exec("INSERT INTO posts (user_id, content, author) VALUES (?, ?, ?)", s.CreatPost.ID, s.CreatPost.Content, s.CreatPost.Author)
+		if err != nil {
+			return err
+		}
+	case "comment":
+		_, err = DB.Exec("INSERT INTO comments (post_id, author, content) VALUES (?, ?, ?)", s.CreatComment.ID, s.CreatComment.Author, s.CreatComment.Content)
+	}
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func GetUserId(r *http.Request, username string) (int, error) {
+	var user_id int
+	err := DB.QueryRow("SELECT id FROM user WHERE username = ?", username).Scan(&user_id)
+	if err != nil {
+		return 0, err
+	}
+	return user_id, nil
 }

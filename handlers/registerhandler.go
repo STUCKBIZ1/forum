@@ -16,7 +16,7 @@ func RegiterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/register" {
 		// err
 		return
-	}	
+	}
 	tmpl, err := template.ParseFiles("template/register.html")
 	if err != nil {
 		// err

@@ -11,17 +11,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method != http.MethodGet {
-
-		//err
+		// err
 		return
 	}
 	if r.URL.Path != "/login" {
-		//err
+		// err
 		return
 	}
 	tmpl, err := template.ParseFiles("template/login.html")
 	if err != nil {
-		//err
+		// err
 		return
 	}
 
