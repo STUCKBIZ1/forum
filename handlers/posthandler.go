@@ -9,6 +9,10 @@ import (
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(r)
+	if !SesIsExist(r){
+		http.Redirect(w, r, "/login", 302)
+		return
+	}
 	switch r.Method {
 
 	case http.MethodPost:

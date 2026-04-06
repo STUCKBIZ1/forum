@@ -42,7 +42,7 @@ func CreateTables(db *sql.DB) {
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	user_id INTEGER,
 	session_token TEXT UNIQUE NOT NULL,
-	username TEXT UNIQUE NOT NULL
+	username TEXT NOT NULL
 	)
 	`
 	// likeTable := `	

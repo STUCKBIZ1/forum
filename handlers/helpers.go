@@ -19,7 +19,7 @@ func GetPosts() ([]Post, error) {
 	for rows.Next() {
 		var p Post
 		rows.Scan(&p.ID, &p.Content, &p.Author, &p.Like, &p.Dislike)
-		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_id = ?", p.ID)
+		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_id = ? ORDER BY created_at DESC", p.ID)
 		if err != nil {
 			return nil, err
 		}
