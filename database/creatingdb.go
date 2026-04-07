@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
@@ -45,18 +44,20 @@ func CreateTables(db *sql.DB) {
 	username TEXT NOT NULL
 	)
 	`
-	// likeTable := `	
-	// CREATE TABLE IF NOT EXISTS like(
-	// 	post_id INTEGER PRIMARY KEY,
-	// 	user_id INTEGER PRIMARY KEY,
-	// )
-	// `
-	// dislikeTable := `
-	// 	CREATE TABLE IF NOT EXISTS like(
-	// 	post_id INTEGER PRIMARY KEY,
-	// 	user_id INTEGER PRIMARY KEY,
-	// (
-	// `
+	likeTable := `	
+	CREATE TABLE IF NOT EXISTS like(
+		post_id INTEGER, 
+		Author TEXT,
+		PRIMARY KEY(Author, post_id)
+	)
+	`
+	dislikeTable := `
+		CREATE TABLE IF NOT EXISTS dislike(
+		post_id INTEGER, 
+		Author TEXT,
+		PRIMARY KEY(Author, post_id)
+	)
+	`
 	_, err := db.Exec(session_user)
 	if err != nil {
 		log.Fatal(err)
@@ -65,14 +66,14 @@ func CreateTables(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// _, err = db.Exec(likeTable)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// _, err = db.Exec(dislikeTable)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	_, err = db.Exec(likeTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(dislikeTable)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	_, err = db.Exec(postTable)
 	if err != nil {
@@ -83,6 +84,4 @@ func CreateTables(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("Tables created")
 }

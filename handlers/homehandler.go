@@ -7,7 +7,6 @@ import (
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hello ddd")
 
 	if r.Method != http.MethodGet {
 		http.Error(w, "bad request this method is not valid", 400)

@@ -1,15 +1,12 @@
 package handlers
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 )
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println(r)
-	if !SesIsExist(r){
+	if !SesIsExist(r) {
 		http.Redirect(w, r, "/login", 302)
 		return
 	}

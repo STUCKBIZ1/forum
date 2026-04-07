@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -15,17 +14,16 @@ func CreatPosthandler(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	category := r.FormValue("category")
 	p := CreatCPLD{
-		CreatPost : Post{
-		ID:  user_id,
-		Author:   username,
-		Content:  content,
-		Category: category,
-	},
+		CreatPost: Post{
+			ID:       user_id,
+			Author:   username,
+			Content:  content,
+			Category: category,
+		},
 	}
 	err = InsertingData(p, "post")
-	if err != nil{
+	if err != nil {
 		log.Fatal("ERROR", err)
 	}
-	fmt.Println(username, user_id)
 	http.Redirect(w, r, "/", 302)
 }

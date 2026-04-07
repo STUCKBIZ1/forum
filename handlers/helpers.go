@@ -49,7 +49,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong password", 400)
 		return
 	}
-	user_id, err := GetUserId(r, username)
+	user_id, err := GetData(username, "from user", Delete{})
 	if err != nil {
 		log.Fatal("ERROR", err)
 		return
@@ -59,7 +59,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	_, err = DB.Exec(query, user_id, token, username)
 	if err != nil {
-		fmt.Println("ERROR", err)
 		http.Error(w, "ERROR", 422)
 		return
 	}
@@ -95,7 +94,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func SesIsExist(r *http.Request) bool {
 	session := GetToken(r)
-	fmt.Println(session)
 	var s string
 	err := DB.QueryRow("SELECT session_token FROM session_user WHERE session_token = ?", session).Scan(&s)
 	if err != nil {
@@ -126,8 +124,32 @@ func GetUserName(r *http.Request) (string, int, error) {
 	return u, user_id, nil
 }
 
-func DeleteSession(session string) {
-	_, err := DB.Exec("DELETE FROM session_user WHERE session_token = ?", session)
+func DeleteData(d Delete, category string) {
+	var err error
+	switch category {
+	case "from session":
+		_, err = DB.Exec("DELETE FROM session_user WHERE session_token = ?", d.session)
+	case "from dislike":
+		_, err = DB.Exec("DELETE FROM dislike WHERE post_id = ? AND Author = ?", d.Author, d.Post_id)
+		if err == nil {
+			fmt.Println("done")
+			_, err = DB.Exec(`
+	UPDATE posts 
+	SET dislikes = dislikes - 1 
+	WHERE id = ? AND dislikes > 0
+`, d.Post_id)
+		}
+	case "from like":
+		_, err = DB.Exec("DELETE FROM like WHERE post_id = ? AND Author = ?", d.Author, d.Post_id)
+		if err == nil {
+			_, err = DB.Exec(`
+	UPDATE posts 
+	SET likes = likes - 1 
+	WHERE id = ? AND likes > 0
+`, d.Post_id)
+		}
+	}
+
 	if err != nil {
 		log.Fatal("Failed to delete row:", err)
 	}
@@ -151,16 +173,46 @@ func InsertingData(s CreatCPLD, category string) error {
 		}
 	case "comment":
 		_, err = DB.Exec("INSERT INTO comments (post_id, author, content) VALUES (?, ?, ?)", s.CreatComment.ID, s.CreatComment.Author, s.CreatComment.Content)
+	case "likepost":
+		_, err = DB.Exec("INSERT INTO like (post_id, Author) VALUES (?, ?)", s.LikePost.Post_id, s.LikePost.Username)
+		if err == nil {
+			_, err = DB.Exec("UPDATE posts SET likes = likes + 1 WHERE id = ?", s.LikePost.Post_id)
+			fmt.Println("done")
+
+		}
+	case "dislikepost":
+		_, err = DB.Exec("INSERT INTO dislike (post_id, Author) VALUES (?, ?)", s.LikePost.Post_id, s.LikePost.Username)
+		if err == nil {
+			_, err = DB.Exec("UPDATE posts SET dislikes = dislikes + 1 WHERE id = ?", s.LikePost.Post_id)
+		}
 	}
+
 	if err != nil {
 		return err
 	}
 	return err
 }
 
-func GetUserId(r *http.Request, username string) (int, error) {
+func GetData(username string, category string, d Delete) (int, error) {
+	var err error
+	var author string
+	var post_id int
 	var user_id int
-	err := DB.QueryRow("SELECT id FROM user WHERE username = ?", username).Scan(&user_id)
+	switch category {
+	case "from user":
+		err = DB.QueryRow("SELECT id FROM user WHERE username = ?", username).Scan(&user_id)
+	case "from like":
+		err = DB.QueryRow(
+			"SELECT post_id, Author FROM like WHERE post_id = ? AND Author = ?",
+			d.Post_id, d.Author,
+		).Scan(&post_id, &author)
+
+	case "from dislike":
+		err = DB.QueryRow(
+			"SELECT post_id, Author FROM dislike WHERE post_id = ? AND Author = ?",
+			d.Post_id, d.Author,
+		).Scan(&post_id, &author)
+	}
 	if err != nil {
 		return 0, err
 	}

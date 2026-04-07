@@ -19,6 +19,12 @@ type Post struct {
 type CreatCPLD struct {
 	CreatPost    Post
 	CreatComment Comment
+	LikePost LikePost
+}
+type LikePost struct{
+	ID int
+	Post_id int
+	Username string
 }
 type Posts struct {
 	AllPosts []Post
@@ -32,4 +38,9 @@ type Comment struct {
 	Content string
 	Like    int
 	Dislike int
+}
+type Delete struct{
+	Author string
+	Post_id int
+	session string
 }

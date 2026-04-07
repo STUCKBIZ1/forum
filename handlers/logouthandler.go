@@ -13,7 +13,9 @@ func LogOutHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "page not found", 422)
 		return
 	}
-	session := GetToken(r)
-	DeleteSession(session)
+	d := Delete{
+		session: GetToken(r),
+	}
+	DeleteData(d, "from session")
 	http.Redirect(w, r, "/", 302)
 }
