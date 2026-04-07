@@ -17,11 +17,10 @@ func LikePostHandler(w http.ResponseWriter, r *http.Request, post_id int) {
 		Post_id: post_id,
 	}
 	_, err1 := GetData(username, "form dislike", d)
-	if err1 != nil {
+	if err1 == nil {
 		DeleteData(d, "from dislike")
 	}
 	_, err = GetData(username, "from like", d)
-	fmt.Println(err)
 	if err != nil {
 		d := CreatCPLD{
 			LikePost: LikePost{
@@ -34,6 +33,8 @@ func LikePostHandler(w http.ResponseWriter, r *http.Request, post_id int) {
 			fmt.Println("ERROR", err)
 			return
 		}
+	}else{
+		DeleteData(d, "from like")
 	}
 	http.Redirect(w, r, "/", 302)
 }

@@ -130,9 +130,8 @@ func DeleteData(d Delete, category string) {
 	case "from session":
 		_, err = DB.Exec("DELETE FROM session_user WHERE session_token = ?", d.session)
 	case "from dislike":
-		_, err = DB.Exec("DELETE FROM dislike WHERE post_id = ? AND Author = ?", d.Author, d.Post_id)
+		_, err = DB.Exec("DELETE FROM dislike WHERE post_id = ? AND Author = ?", d.Post_id, d.Author)
 		if err == nil {
-			fmt.Println("done")
 			_, err = DB.Exec(`
 	UPDATE posts 
 	SET dislikes = dislikes - 1 
@@ -140,7 +139,8 @@ func DeleteData(d Delete, category string) {
 `, d.Post_id)
 		}
 	case "from like":
-		_, err = DB.Exec("DELETE FROM like WHERE post_id = ? AND Author = ?", d.Author, d.Post_id)
+		_, err = DB.Exec("DELETE FROM like WHERE post_id = ? AND Author = ?", d.Post_id, d.Author)
+
 		if err == nil {
 			_, err = DB.Exec(`
 	UPDATE posts 
@@ -177,7 +177,6 @@ func InsertingData(s CreatCPLD, category string) error {
 		_, err = DB.Exec("INSERT INTO like (post_id, Author) VALUES (?, ?)", s.LikePost.Post_id, s.LikePost.Username)
 		if err == nil {
 			_, err = DB.Exec("UPDATE posts SET likes = likes + 1 WHERE id = ?", s.LikePost.Post_id)
-			fmt.Println("done")
 
 		}
 	case "dislikepost":
