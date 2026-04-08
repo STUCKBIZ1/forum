@@ -10,6 +10,7 @@ func CreateTables(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS posts (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		user_id INTEGER,
+		title TEXT NOT NULL,
 		content TEXT NOT NULL,
 		author TEXT NOT NULL,
 		likes INTEGER DEFAULT 0,
@@ -45,17 +46,31 @@ func CreateTables(db *sql.DB) {
 	)
 	`
 	likeTable := `	
-	CREATE TABLE IF NOT EXISTS like(
+	CREATE TABLE IF NOT EXISTS likepost(
 		post_id INTEGER, 
 		Author TEXT,
 		PRIMARY KEY(Author, post_id)
 	)
 	`
 	dislikeTable := `
-		CREATE TABLE IF NOT EXISTS dislike(
+		CREATE TABLE IF NOT EXISTS dislikepost(
 		post_id INTEGER, 
 		Author TEXT,
 		PRIMARY KEY(Author, post_id)
+	)
+	`
+	dislikecommentTable := `
+		CREATE TABLE IF NOT EXISTS dislikecomment(
+		comment_id INTEGER, 
+		Author TEXT,
+		PRIMARY KEY(Author, comment_id)
+	)
+	`
+	likecommentTable := `
+		CREATE TABLE IF NOT EXISTS likecomment(
+		comment_id INTEGER, 
+		Author TEXT,
+		PRIMARY KEY(Author, comment_id)
 	)
 	`
 	_, err := db.Exec(session_user)
@@ -81,6 +96,14 @@ func CreateTables(db *sql.DB) {
 	}
 
 	_, err = db.Exec(commentTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(dislikecommentTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(likecommentTable)
 	if err != nil {
 		log.Fatal(err)
 	}

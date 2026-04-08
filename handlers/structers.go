@@ -8,6 +8,7 @@ var DB *sql.DB
 
 type Post struct {
 	ID       int
+	Title string
 	Author   string
 	Content  string
 	Comments []Comment
@@ -19,11 +20,12 @@ type Post struct {
 type CreatCPLD struct {
 	CreatPost    Post
 	CreatComment Comment
-	LikePost LikePost
+	L_DPostComment L_DPostComment
 }
-type LikePost struct{
+type L_DPostComment struct{
 	ID int
 	Post_id int
+	Comment_id int
 	Username string
 }
 type Posts struct {
@@ -42,5 +44,6 @@ type Comment struct {
 type Delete struct{
 	Author string
 	Post_id int
+	Comment_id int
 	session string
 }

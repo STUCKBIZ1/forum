@@ -10,7 +10,7 @@ import (
 )
 
 func GetPosts() ([]Post, error) {
-	rows, err := DB.Query("SELECT id, content, author, likes, dislikes FROM posts ORDER BY created_at DESC")
+	rows, err := DB.Query("SELECT id, title, content, author, likes, dislikes FROM posts ORDER BY created_at DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func GetPosts() ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var p Post
-		rows.Scan(&p.ID, &p.Content, &p.Author, &p.Like, &p.Dislike)
+		rows.Scan(&p.ID, &p.Title, &p.Content, &p.Author, &p.Like, &p.Dislike)
 		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_id = ? ORDER BY created_at DESC", p.ID)
 		if err != nil {
 			return nil, err
@@ -129,8 +129,8 @@ func DeleteData(d Delete, category string) {
 	switch category {
 	case "from session":
 		_, err = DB.Exec("DELETE FROM session_user WHERE session_token = ?", d.session)
-	case "from dislike":
-		_, err = DB.Exec("DELETE FROM dislike WHERE post_id = ? AND Author = ?", d.Post_id, d.Author)
+	case "from dislike post":
+		_, err = DB.Exec("DELETE FROM dislikepost WHERE post_id = ? AND Author = ?", d.Post_id, d.Author)
 		if err == nil {
 			_, err = DB.Exec(`
 	UPDATE posts 
@@ -138,8 +138,17 @@ func DeleteData(d Delete, category string) {
 	WHERE id = ? AND dislikes > 0
 `, d.Post_id)
 		}
-	case "from like":
-		_, err = DB.Exec("DELETE FROM like WHERE post_id = ? AND Author = ?", d.Post_id, d.Author)
+	case "from dislike comment":
+		_, err = DB.Exec("DELETE FROM dislikecomment WHERE comment_id = ? AND Author = ?", d.Comment_id, d.Author)
+		if err == nil {
+			_, err = DB.Exec(`
+	UPDATE comments 
+	SET dislikes = dislikes - 1 
+	WHERE id = ? AND dislikes > 0
+`, d.Comment_id)
+		}
+	case "from like post":
+		_, err = DB.Exec("DELETE FROM likepost WHERE post_id = ? AND Author = ?", d.Post_id, d.Author)
 
 		if err == nil {
 			_, err = DB.Exec(`
@@ -147,6 +156,17 @@ func DeleteData(d Delete, category string) {
 	SET likes = likes - 1 
 	WHERE id = ? AND likes > 0
 `, d.Post_id)
+		}
+
+	case "from like comment":
+		_, err = DB.Exec("DELETE FROM likecomment WHERE comment_id = ? AND Author = ?", d.Comment_id, d.Author)
+
+		if err == nil {
+			_, err = DB.Exec(`
+	UPDATE comments 
+	SET likes = likes - 1 
+	WHERE id = ? AND likes > 0
+`, d.Comment_id)
 		}
 	}
 
@@ -163,26 +183,43 @@ func IsTrue(s string) bool {
 	return false
 }
 
+func IsExistPC(s string) bool {
+	switch s {
+	case "post", "comment":
+		return true
+	}
+	return false
+}
+
 func InsertingData(s CreatCPLD, category string) error {
 	var err error
 	switch category {
 	case "post":
-		_, err = DB.Exec("INSERT INTO posts (user_id, content, author) VALUES (?, ?, ?)", s.CreatPost.ID, s.CreatPost.Content, s.CreatPost.Author)
+		_, err = DB.Exec("INSERT INTO posts (user_id, title, content, author) VALUES (?, ?, ?, ?)", s.CreatPost.ID, s.CreatPost.Title, s.CreatPost.Content, s.CreatPost.Author)
 		if err != nil {
 			return err
 		}
 	case "comment":
 		_, err = DB.Exec("INSERT INTO comments (post_id, author, content) VALUES (?, ?, ?)", s.CreatComment.ID, s.CreatComment.Author, s.CreatComment.Content)
-	case "likepost":
-		_, err = DB.Exec("INSERT INTO like (post_id, Author) VALUES (?, ?)", s.LikePost.Post_id, s.LikePost.Username)
+	case "from like post":
+		_, err = DB.Exec("INSERT INTO likepost (post_id, Author) VALUES (?, ?)", s.L_DPostComment.Post_id, s.L_DPostComment.Username)
 		if err == nil {
-			_, err = DB.Exec("UPDATE posts SET likes = likes + 1 WHERE id = ?", s.LikePost.Post_id)
-
+			_, err = DB.Exec("UPDATE posts SET likes = likes + 1 WHERE id = ?", s.L_DPostComment.Post_id)
 		}
-	case "dislikepost":
-		_, err = DB.Exec("INSERT INTO dislike (post_id, Author) VALUES (?, ?)", s.LikePost.Post_id, s.LikePost.Username)
+	case "from like comment":
+		_, err = DB.Exec("INSERT INTO likecomment (comment_id, Author) VALUES (?, ?)", s.L_DPostComment.Comment_id, s.L_DPostComment.Username)
 		if err == nil {
-			_, err = DB.Exec("UPDATE posts SET dislikes = dislikes + 1 WHERE id = ?", s.LikePost.Post_id)
+			_, err = DB.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", s.L_DPostComment.Comment_id)
+		}
+	case "from dislike post":
+		_, err = DB.Exec("INSERT INTO dislikepost (post_id, Author) VALUES (?, ?)", s.L_DPostComment.Post_id, s.L_DPostComment.Username)
+		if err == nil {
+			_, err = DB.Exec("UPDATE posts SET dislikes = dislikes + 1 WHERE id = ?", s.L_DPostComment.Post_id)
+		}
+	case "from dislike comment":
+		_, err = DB.Exec("INSERT INTO dislikecomment (comment_id, Author) VALUES (?, ?)", s.L_DPostComment.Comment_id, s.L_DPostComment.Username)
+		if err == nil {
+			_, err = DB.Exec("UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?", s.L_DPostComment.Comment_id)
 		}
 	}
 
@@ -200,16 +237,26 @@ func GetData(username string, category string, d Delete) (int, error) {
 	switch category {
 	case "from user":
 		err = DB.QueryRow("SELECT id FROM user WHERE username = ?", username).Scan(&user_id)
-	case "from like":
+	case "from like post":
 		err = DB.QueryRow(
-			"SELECT post_id, Author FROM like WHERE post_id = ? AND Author = ?",
+			"SELECT post_id, Author FROM likepost WHERE post_id = ? AND Author = ?",
 			d.Post_id, d.Author,
 		).Scan(&post_id, &author)
-
-	case "from dislike":
+	case "from like comment":
 		err = DB.QueryRow(
-			"SELECT post_id, Author FROM dislike WHERE post_id = ? AND Author = ?",
+			"SELECT comment_id, Author FROM likecomment WHERE comment_id = ? AND Author = ?",
+			d.Comment_id, d.Author,
+		).Scan(&post_id, &author)
+
+	case "from dislike post":
+		err = DB.QueryRow(
+			"SELECT post_id, Author FROM dislikepost WHERE post_id = ? AND Author = ?",
 			d.Post_id, d.Author,
+		).Scan(&post_id, &author)
+	case "from dislike comment":
+		err = DB.QueryRow(
+			"SELECT comment_id, Author FROM dislikecomment WHERE comment_id = ? AND Author = ?",
+			d.Comment_id, d.Author,
 		).Scan(&post_id, &author)
 	}
 	if err != nil {

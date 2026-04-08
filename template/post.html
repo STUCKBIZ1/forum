@@ -33,6 +33,15 @@
         {{end}}
 
         <form class="new-post-form" method="POST" action="/post/create">
+            <div closs="title-creat-post">
+                <label for="title">Title</label>
+                <textarea
+                    id="Title"
+                    name="title"
+                    placeholder="What's on your mind?"
+                    required
+                ></textarea>
+            </div>
             <div class="form-group">
                 <label for="content">Content</label>
                 <textarea

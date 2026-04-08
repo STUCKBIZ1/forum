@@ -40,19 +40,22 @@
                 <span class="post-label">Author</span>
             </div>
         </div>
+         <div class="post-title">
+            <h3>{{.Title}}</h3>
+        </div>
 
         <div class="post-body">
             <p class="post-content">{{.Content}}</p>
         </div>
 
         <div class="reactions">
-            <form class="reaction-form" method="POST" action="/post/{{.ID}}/like">
+            <form class="reaction-form" method="POST" action="/api/post/{{.ID}}/like">
                 <button type="submit" class="reaction-btn like">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 7.59 6.59C7.22 6.95 7 7.45 7 8v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
                     {{.Like}}
                 </button>
             </form>
-            <form class="reaction-form" method="POST" action="/post/{{.ID}}/dislike">
+            <form class="reaction-form" method="POST" action="/api/post/{{.ID}}/dislike">
                 <button type="submit" class="reaction-btn dislike">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 3h-4v12h4V3zM2 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l5.58-5.59c.37-.36.59-.86.59-1.41V6c0-1.1-.9-2-2-2H6c-.83 0-1.54.5-1.84 1.22L1.14 12.27C1.05 12.5 1 12.74 1 13v2z"/></svg>
                     {{.Dislike}}
@@ -71,13 +74,13 @@
                 </div>
                 <p class="comment-content">{{.Content}}</p>
                 <div class="comment-reactions">
-                    <form class="reaction-form" method="POST" action="/comment/{{.ID}}/like">
+                    <form class="reaction-form" method="POST" action="/api/comment/{{.ID}}/like">
                         <button type="submit" class="reaction-btn like">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 7.59 6.59C7.22 6.95 7 7.45 7 8v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
                             {{.Like}}
                         </button>
                     </form>
-                    <form class="reaction-form" method="POST" action="/comment/{{.ID}}/dislike">
+                    <form class="reaction-form" method="POST" action="/api/comment/{{.ID}}/dislike">
                         <button type="submit" class="reaction-btn dislike">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 3h-4v12h4V3zM2 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l5.58-5.59c.37-.36.59-.86.59-1.41V6c0-1.1-.9-2-2-2H6c-.83 0-1.54.5-1.84 1.22L1.14 12.27C1.05 12.5 1 12.74 1 13v2z"/></svg>
                             {{.Dislike}}
@@ -89,8 +92,8 @@
             <p class="no-comments">No comments yet.</p>
             {{end}}
 
-            <form class="comment-form" method="POST" action="/post/{{.ID}}/comment">
-                <textarea name="content" placeholder="Write a comment..."></textarea>
+            <form class="comment-form" method="POST" action="/api/post/{{.ID}}/comment">
+                <textarea name="content" placeholder="Write a comment..." required></textarea>
                 <button type="submit">Post Comment</button>
             </form>
         </div>

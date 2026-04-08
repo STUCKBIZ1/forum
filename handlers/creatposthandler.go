@@ -11,11 +11,13 @@ func CreatPosthandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "intrnal server error", 500)
 		return
 	}
+	Title := r.FormValue("title")
 	content := r.FormValue("content")
 	category := r.FormValue("category")
 	p := CreatCPLD{
 		CreatPost: Post{
 			ID:       user_id,
+			Title: Title,
 			Author:   username,
 			Content:  content,
 			Category: category,

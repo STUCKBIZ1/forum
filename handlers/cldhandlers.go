@@ -5,8 +5,8 @@ import (
 	"strconv"
 )
 
-func CLDPhandlers(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost{
+func CLDhandlers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
 		http.Error(w, "bad request", 400)
 		return
 	}
@@ -21,23 +21,42 @@ func CLDPhandlers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "page not found", 404)
 		return
 	}
-	yes := SesIsExist(r)
-	if !yes {
+	PC := r.PathValue("PC")
+	if !IsExistPC(PC) {
+		http.Error(w, "bad request", 400)
+		return
+	}
+	if !SesIsExist(r) {
 		http.Redirect(w, r, "/login", 302)
 		return
 	}
-	switch action {
+	switch PC {
+	case "post":
+		switch action {
+		case "comment":
+			CommentHandler(w, r, n)
+			return
+		case "like":
+			LikePostAndcommentHandler(w, r, n, "for post")
+			return
+		case "dislike":
+			DislikePostAndcommentHandler(w, r, n, "for post")
+			return
+		default:
+			http.Error(w, "page not found", 404)
+			return
+		}
 	case "comment":
-		CommentHandler(w, r, n)
-		return
-	case "like":
-		LikePostHandler(w, r, n)
-		return
-	case "dislike":
-		DislikePostHandler(w, r, n)
-		return
-	default:
-		http.Error(w, "page not found", 404)
-		return
+		switch action {
+		case "like":
+			LikePostAndcommentHandler(w, r, n, "for comment")
+			return
+		case "dislike":
+			DislikePostAndcommentHandler(w, r, n, "for comment")
+			return
+		default:
+			http.Error(w, "page not found", 404)
+			return
+		}
 	}
 }

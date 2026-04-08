@@ -6,35 +6,57 @@ import (
 	"net/http"
 )
 
-func LikePostHandler(w http.ResponseWriter, r *http.Request, post_id int) {
+func LikePostAndcommentHandler(w http.ResponseWriter, r *http.Request, ComOrPo_id int, category string) {
 	username, _, err := GetUserName(r)
 	if err != nil {
 		log.Fatal("ERROR", err)
 		return
 	}
-	d := Delete{
-		Author:  username,
-		Post_id: post_id,
-	}
-	_, err1 := GetData(username, "form dislike", d)
-	if err1 == nil {
-		DeleteData(d, "from dislike")
-	}
-	_, err = GetData(username, "from like", d)
-	if err != nil {
-		d := CreatCPLD{
-			LikePost: LikePost{
+	var DI CreatCPLD
+	var d Delete
+	var categoryD string
+	var categoryI string
+	switch category {
+	case "for post":
+		d = Delete{
+			Author:  username,
+			Post_id: ComOrPo_id,
+		}
+		DI = CreatCPLD{
+			L_DPostComment: L_DPostComment{
 				Username: username,
-				Post_id:  post_id,
+				Post_id:  ComOrPo_id,
 			},
 		}
-		err = InsertingData(d, "likepost")
+		categoryD = "from dislike post"
+		categoryI = "from like post"
+	case "for comment":
+		d = Delete{
+			Author:     username,
+			Comment_id: ComOrPo_id,
+		}
+		DI = CreatCPLD{
+			L_DPostComment: L_DPostComment{
+				Username: username,
+				Comment_id : ComOrPo_id,
+			},
+		}
+		categoryD = "from dislike comment"
+		categoryI = "from like comment"
+	}
+	_, err1 := GetData(username, categoryD, d)
+	if err1 == nil {
+		DeleteData(d, categoryD)
+	}
+	_, err = GetData(username, categoryI, d)
+	if err != nil {
+		err = InsertingData(DI, categoryI)
 		if err != nil {
 			fmt.Println("ERROR", err)
 			return
 		}
-	}else{
-		DeleteData(d, "from like")
+	} else {
+		DeleteData(d, categoryI)
 	}
 	http.Redirect(w, r, "/", 302)
 }
