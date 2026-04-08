@@ -30,6 +30,30 @@
     <p class="subtitle">Community Discussions</p>
 </header>
 <main>
+    <form  class="category-filter-form" method="POST" action="/">
+          <h3>Select categories:</h3>
+        <label>
+            <input type="checkbox" name="General" value="General">
+            General
+        </label>
+        <label>
+            <input type="checkbox" name="Webdeveloper" value="Webdeveloper">
+            Webdeveloper
+        </label>
+        <label>
+            <input type="checkbox" name="Reports" value="Reports">
+            Reports
+        </label>
+        <label>
+            <input type="checkbox" name="Liked Posts" value="Liked Posts">
+            Liked Posts
+        </label>
+        <label>
+            <input type="checkbox" name="Disliked Posts" value="Disliked Posts">
+            Disliked Posts
+        </label>
+         <button type="submit">Send</button>
+    </form>
     {{range .AllPosts}}
     <article class="post-card">
 

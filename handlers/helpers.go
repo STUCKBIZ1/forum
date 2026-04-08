@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GetPosts() ([]Post, error) {
-	rows, err := DB.Query("SELECT id, title, content, author, likes, dislikes FROM posts ORDER BY created_at DESC")
+func GetPosts(slice []string) ([]Post, error) {
+	rows, err := DB.Query("SELECT id, title, content, author, likes, dislikes, category FROM posts ORDER BY created_at DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +19,7 @@ func GetPosts() ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var p Post
-		rows.Scan(&p.ID, &p.Title, &p.Content, &p.Author, &p.Like, &p.Dislike)
+		rows.Scan(&p.ID, &p.Title, &p.Content, &p.Author, &p.Like, &p.Dislike, &p.Category)
 		commentrows, err := DB.Query("SELECT id, post_id, author, content, likes, dislikes FROM comments WHERE post_id = ? ORDER BY created_at DESC", p.ID)
 		if err != nil {
 			return nil, err
@@ -29,7 +30,14 @@ func GetPosts() ([]Post, error) {
 			commentrows.Scan(&c.ID, &c.PostID, &c.Author, &c.Content, &c.Like, &c.Dislike)
 			p.Comments = append(p.Comments, c)
 		}
-		posts = append(posts, p)
+		if slices.Contains(slice, p.Category) && len(slice) != 0 {
+			posts = append(posts, p)
+			continue
+		}else if len(slice) == 0 {
+			posts = append(posts, p)
+		}else{
+			continue
+		}
 	}
 	return posts, nil
 }
@@ -195,7 +203,7 @@ func InsertingData(s CreatCPLD, category string) error {
 	var err error
 	switch category {
 	case "post":
-		_, err = DB.Exec("INSERT INTO posts (user_id, title, content, author) VALUES (?, ?, ?, ?)", s.CreatPost.ID, s.CreatPost.Title, s.CreatPost.Content, s.CreatPost.Author)
+		_, err = DB.Exec("INSERT INTO posts (user_id, title, content, author, category) VALUES (?, ?, ?, ?, ?)", s.CreatPost.ID, s.CreatPost.Title, s.CreatPost.Content, s.CreatPost.Author, s.CreatPost.Category)
 		if err != nil {
 			return err
 		}

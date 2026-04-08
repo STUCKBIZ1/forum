@@ -7,6 +7,7 @@ import (
 
 	"forum/database"
 	"forum/handlers"
+	"forum/routs"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -25,17 +26,9 @@ func main() {
 	}
 
 	handlers.DB = DB
+	routs.Routes()
 
 	database.CreateTables(DB)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
-	http.HandleFunc("/", handlers.HomeHandler)
-	http.HandleFunc("/register", handlers.RegiterHandler)
-	http.HandleFunc("/login", handlers.LoginHandler)
-	http.HandleFunc("/logout", handlers.LogOutHandler)
-	http.HandleFunc("/api/{PC}/{id}/{action}", handlers.CLDhandlers)
-	// http.HandleFunc("/comment/{id}/{action}", handlers.LDCommenthandlers)
-	http.HandleFunc("/post/create", handlers.PostHandler)
 	fmt.Println("Server listen on http://localhost:8888/")
 	err = http.ListenAndServe(":8888", nil)
 	if err != nil {

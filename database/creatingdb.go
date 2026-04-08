@@ -15,6 +15,7 @@ func CreateTables(db *sql.DB) {
 		author TEXT NOT NULL,
 		likes INTEGER DEFAULT 0,
 		dislikes INTEGER DEFAULT 0,
+		category TEXT NOT NULL,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`
 

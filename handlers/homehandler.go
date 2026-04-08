@@ -7,10 +7,17 @@ import (
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "bad request this method is not valid", 400)
-		return
+	var slice []string
+	if r.Method == http.MethodPost {
+		if gene := r.FormValue("General"); gene == "General" {
+			slice = append(slice, gene)
+		}
+		if webdeveloper := r.FormValue("Webdeveloper"); webdeveloper == "Webdeveloper" {
+			slice = append(slice, webdeveloper)
+		}
+		if rep := r.FormValue("Reports"); rep == "Reports" {
+			slice = append(slice, rep)
+		}
 	}
 	if r.URL.Path != "/" {
 		http.Error(w, "not found", 404)
@@ -21,7 +28,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if checkse {
 		username, _, _ = GetUserName(r)
 	}
-	posts, err := GetPosts()
+	posts, err := GetPosts(slice)
 	p := Posts{
 		AllPosts: posts,
 		LoggedIn: checkse,

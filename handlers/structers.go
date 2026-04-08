@@ -32,6 +32,10 @@ type Posts struct {
 	AllPosts []Post
 	LoggedIn bool
 	Username string
+	General bool
+	Webdeveloper bool
+	Reports bool
+	All bool
 }
 type Comment struct {
 	ID      int
@@ -46,4 +50,8 @@ type Delete struct{
 	Post_id int
 	Comment_id int
 	session string
+}
+type LikedDisliked struct{
+	liked bool
+	disliked bool
 }
