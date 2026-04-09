@@ -45,6 +45,7 @@
                     name="username"
                     placeholder="Choose a username"
                     required
+                    maxlength="15"
                     autocomplete="username"
                 />
             </div>
@@ -57,6 +58,7 @@
                     name="email"
                     placeholder="Enter your email"
                     required
+                    maxlength="40"
                     autocomplete="email"
                 />
             </div>
@@ -69,22 +71,10 @@
                     name="password"
                     placeholder="Create a password"
                     required
+                    maxlength="40"
                     autocomplete="new-password"
                 />
             </div>
-
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password</label>
-                <input
-                    type="password"
-                    id="confirm_password"
-                    name="confirm_password"
-                    placeholder="Repeat your password"
-                    required
-                    autocomplete="new-password"
-                />
-            </div>
-
             <button type="submit" class="auth-submit">
                 Create Account
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
