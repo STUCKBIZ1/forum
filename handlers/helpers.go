@@ -62,6 +62,10 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("ERROR", err)
 		return
 	}
+	d := Delete{
+		Author: username,
+	}
+		DeleteData(d, "from session_user")
 	token := uuid.New().String()
 	query := `INSERT INTO session_user (user_id, session_token, username) VALUES (?, ?, ?)`
 
@@ -135,6 +139,8 @@ func GetUserName(r *http.Request) (string, int, error) {
 func DeleteData(d Delete, category string) {
 	var err error
 	switch category {
+	case "from session_user":
+		_, err = DB.Exec("DELETE FROM session_user WHERE username = ?", d.Author)
 	case "from session":
 		_, err = DB.Exec("DELETE FROM session_user WHERE session_token = ?", d.session)
 	case "from dislike post":
